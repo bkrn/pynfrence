@@ -7,7 +7,7 @@ from numpy import exp, sqrt, pi
 
 class PDF(object):
 
-    def __init__(self, series, start=None, stop=None, bw=1):
+    def __init__(self, series, start=None, stop=None, bw=.1):
         if not type(series) == pd.Series:
             series = pd.Series(series)
         series = series[series.notnull()]

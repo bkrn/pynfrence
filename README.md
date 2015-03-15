@@ -1,4 +1,8 @@
 # pynfrence
-Humble stats module featuring machine learning and specializing in discrete data
+Humble stats library featuring machine learning and specializing in discrete data
 
-Still getting to this. Sorry for your trouble.
+Required libraries:
+
+    Numpy
+    Pandas
+    MatPlotLib
