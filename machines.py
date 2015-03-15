@@ -57,13 +57,16 @@ class BayesMachine(object):
         return self.clsfn[list(v).index(v.max())]
 
     def ranges(self):
+        """ Returns a dictionary of {PDF name: range}.
+        The PDFs labeled X|Y are the PDF for the variable X given result Y.
+        """
         d = {}
         d['classifications'] = self.clsfn
         for var in self.varsPDFs:
             d[var] = self.varsPDFs[var].ends
         for clsf in self.clsfn:
             for var in self.givnPDFs[clsf]:
-                d['%s|%s' % var, clsf] = self.givnPDFs[clsf][var]
+                d[('%s|%s' % (var, clsf))] = self.givnPDFs[clsf][var].ends
         return d
 
     def test(self, series, n=20, its=1000):
