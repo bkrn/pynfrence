@@ -63,7 +63,8 @@ class ContinuousPDF(PDF):
             self.ends = np.array((start, stop))
         else:
             self.ends = np.array((self.values.min(), self.values.max()))
-        self.step = (self.ends[1] - self.ends[0]) / 200.
+        self.width = 500
+        self.step = (self.ends[1] - self.ends[0]) / float(self.width)
         self.pdf = self._estimate(series)
 
     def _estimate(self, series):
@@ -73,7 +74,7 @@ class ContinuousPDF(PDF):
                 / d)
 
         d = sqrt(2 * pi * self.bw ** 2)
-        r = np.linspace(*self.ends, num=200)
+        r = np.linspace(*self.ends, num=self.width)
         a = np.array([kde(xv, series, d, self.bw) for xv in r])
         return a * (1 / a.sum())
 
@@ -81,7 +82,7 @@ class ContinuousPDF(PDF):
         li = np.array(li)
         self.verify_slice(li),
         left = max(int((li.min() - self.ends[0]) / self.step) - 1, 0)
-        right = min(int((li.max() - self.ends[0]) / self.step) + 1, 200)
+        right = min(int((li.max() - self.ends[0]) / self.step) + 1, self.width)
         return self.pdf[range(left, right)].sum()
 
     def verify_slice(self, li):
