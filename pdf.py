@@ -7,7 +7,7 @@ from numpy import exp, sqrt, pi
 
 class PDF(object):
 
-    def __init__(self, series, start=None, stop=None, bw=.1):
+    def __init__(self, series, start=None, stop=None, bw=1):
         if not type(series) == pd.Series:
             series = pd.Series(series)
         series = series[series.notnull()]
@@ -59,7 +59,7 @@ class ContinuousPDF(PDF):
         if not type(series) == pd.Series:
             series = pd.Series(series)
         series = series[series.notnull()]
-        if start and stop:
+        if start is not None and stop is not None:
             self.ends = np.array((start, stop))
         else:
             self.ends = np.array((self.values.min(), self.values.max()))
@@ -101,7 +101,7 @@ class DiscretePDF(PDF):
         if not type(series) == pd.Series:
             series = pd.Series(series)
         series = series[series.notnull()]
-        if start and stop:
+        if start is not None and stop is not None:
             self.ends = np.array((start, stop))
         else:
             self.ends = np.array((self.values.min(), self. values.max() + 1))

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
 
-from pdf import PDF
+from pdf import *
 
 
 class BayesMachine(object):
@@ -24,6 +23,9 @@ class BayesMachine(object):
         ])
 
     def prob(self, data):
+        """data: An {independent_variable: [vals]} dictionary
+        Returns a {classifer_string: probabilty} dictionary
+        """
         given = np.array([
             np.prod([
                 self.givnPDFs[clsf][var].prob(data[var]) for var in data.keys()
@@ -36,12 +38,18 @@ class BayesMachine(object):
             ]) for clsf in self.clsfn
         ])
         v = ((given * clsfs) / prior)
-        return pd.DataFrame(
-            columns=[str(clsf) for clsf in self.clsfn],
-            data=[v * (1 / float(v.sum()))]
+        return dict(
+            zip(
+                [str(clsf) for clsf in self.clsfn],
+                list(v * (1 / float(v.sum())))
+            )
         )
 
     def classify(self, data):
+        """data: An {independent variable: [vals]} dictionary
+        Returns the string identifier for the most likely classification of
+        the data
+        """
         given = np.array([
             np.prod([
                 self.givnPDFs[clsf][var].prob(data[var]) for var in data.keys()
@@ -68,6 +76,31 @@ class BayesMachine(object):
             for var in self.givnPDFs[clsf]:
                 d[('%s|%s' % (var, clsf))] = self.givnPDFs[clsf][var].ends
         return d
+
+    def sweep_1d(self, data, target):
+        """ data: An {independent variable: [vals]} dictionary
+        target: String name of an independent variable to sweep
+        Shows a plot of classifier probabilities given values in data and the
+        whole range or target's possible values.
+        """
+
+        if target in data:
+            raise BaseException('Target should not be in data')
+        tgtpdf = self.varsPDFs[target]
+        if isinstance(tgtpdf, IndexedPDF):
+            x = tgtpdf.values
+        elif isinstance(tgtpdf, DiscretePDF):
+            x = range(*tgtpdf.ends)
+        elif isinstance(tgtpdf, ContinuousPDF):
+            x = np.linspace(tgtpdf.ends[0], tgtpdf.ends[1], 50)
+        ys = []
+        for v in x:
+            data[target] = v
+            ys.append(self.prob(data))
+        for key in [str(clsf) for clsf in self.clsfn]:
+            y = [r[key] for r in ys]
+            plt.plot(x, y, 'o', label=key)
+        plt.show()
 
     def test(self, series, n=20, its=1000):
         # THIS DOES NOT WORK
