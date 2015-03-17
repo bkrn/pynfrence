@@ -63,8 +63,8 @@ class ContinuousPDF(PDF):
             self.ends = np.array((start, stop))
         else:
             self.ends = np.array((self.values.min(), self.values.max()))
-        self.width = 500
-        self.step = (self.ends[1] - self.ends[0]) / float(self.width)
+        self.width = 200
+        self.step = float((self.ends[1] - self.ends[0]) / float(self.width))
         self.pdf = self._estimate(series)
 
     def _estimate(self, series):
@@ -79,8 +79,10 @@ class ContinuousPDF(PDF):
         return a * (1 / a.sum())
 
     def prob(self, li):
-        li = np.array(li)
-        self.verify_slice(li),
+        li = np.array([li])
+        self.verify_slice(li)
+        if li.size == 1:
+            li = np.array([li[0] - .5 * self.step, li[0] + .5 * self.step])
         left = max(int((li.min() - self.ends[0]) / self.step) - 1, 0)
         right = min(int((li.max() - self.ends[0]) / self.step) + 1, self.width)
         return self.pdf[range(left, right)].sum()
@@ -165,7 +167,7 @@ class IndexedPDF(PDF):
 
     def verify_slice(self, li):
         try:
-            assert all(np.intersect1d(li, self.values) == li)
+            assert all([v in self.values for v in li])
         except:
             s = '%s has range %s but %s provided'
             s = s % (self.name, self.ends, li)

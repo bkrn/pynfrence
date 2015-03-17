@@ -31,7 +31,9 @@ class BayesMachine(object):
                 self.givnPDFs[clsf][var].prob(data[var]) for var in data.keys()
             ]) for clsf in self.clsfn
         ])
-        clsfs = np.array([self.clsfPDF.prob(clsf) for clsf in self.clsfn])
+        clsfs = np.array([
+            self.clsfPDF.prob(np.array([clsf])) for clsf in self.clsfn
+        ])
         prior = np.array([
             np.prod([
                 self.varsPDFs[var].prob(data[var]) for var in data.keys()
@@ -90,7 +92,7 @@ class BayesMachine(object):
         if isinstance(tgtpdf, IndexedPDF):
             x = tgtpdf.values
         elif isinstance(tgtpdf, DiscretePDF):
-            x = range(*tgtpdf.ends)
+            x = range(tgtpdf.ends[0], tgtpdf.ends[1] - 1)
         elif isinstance(tgtpdf, ContinuousPDF):
             x = np.linspace(tgtpdf.ends[0], tgtpdf.ends[1], 50)
         ys = []
@@ -100,6 +102,8 @@ class BayesMachine(object):
         for key in [str(clsf) for clsf in self.clsfn]:
             y = [r[key] for r in ys]
             plt.plot(x, y, 'o', label=key)
+        plt.legend(loc='upper right')
+        plt.title('%s Sweep' % target)
         plt.show()
 
     def test(self, series, n=20, its=1000):
