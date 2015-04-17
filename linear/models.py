@@ -117,9 +117,6 @@ class LinearModel(object):
             for key in predic:
                 if not key in results:
                     results[key] = []
-                if not key in actual:
-                    raise BaseException(
-                        'key %s in prediction, not actual' % str(key))
                 act.append(actual[key])
                 pre.append(predic[key])
                 results[key].append((actual[key], predic[key]))
