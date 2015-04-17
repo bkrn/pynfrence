@@ -14,9 +14,9 @@ class LinearModeler(object):
         self.models = {}
         self.modelstats = {}
 
-    def addmodel(self, modelarray, plot=False):
+    def addmodel(self, modelarray, floor=None, plot=False):
         modelarray = tuple(modelarray)
-        m = LinearModel(modelarray, self.train)
+        m = LinearModel(modelarray, self.train, floor=floor)
         self.models[modelarray] = m
         t = self.testmodel(m)
         self.modelstats[modelarray] = t
@@ -40,8 +40,9 @@ class LinearModel(object):
         using eval if you want!
     """
 
-    def __init__(self, modelarray, datas):
+    def __init__(self, modelarray, datas, floor=None):
         self.modelarray = modelarray
+        self.floor = floor
         self.dvar = modelarray[0]
         self.xvars = modelarray[1:]
         self.datas = datas
@@ -94,7 +95,9 @@ class LinearModel(object):
         results = {}
         for row, key in self.extract(dataobj):
             if key in self.coefs:
-                results[key] = (np.array(row[1:]) * self.coefs[key]).sum()
+                v = (np.array(row[1:]) * self.coefs[key]).sum()
+                results[key] = (v if self.floor is None or v > self.floor
+                    else self.floor)
             else:
                 pass
         return results
