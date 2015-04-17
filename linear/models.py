@@ -7,25 +7,29 @@ import matplotlib.pyplot as plt
 
 class LinearModeler(object):
 
-    def __init__(self, datas, trainset=.8):
-        np.random.shuffle(datas)
-        self.train = datas[:int(trainset * len(datas))]
-        self.test = datas[int(trainset * len(datas)):]
-        self.models = {}
+    def __init__(self, datas, trainset=.8, bootstraps=40):
+        self.datas = datas
+        self.trainset = trainset
+        self.bootstraps = bootstraps
         self.modelstats = {}
 
-    def addmodel(self, modelarray, floor=None, plot=False):
+    def addmodel(self, modelarray, floor=None):
         modelarray = tuple(modelarray)
-        m = LinearModel(modelarray, self.train, floor=floor)
-        self.models[modelarray] = m
-        t = self.testmodel(m)
-        self.modelstats[modelarray] = t
-        if plot:
-            m.testplot(self.test)
-        return t
+        rsq, rbh = [], []
+        for i in range(self.bootstraps):
+            np.random.shuffle(self.datas)
+            train = self.datas[:int(self.trainset * len(self.datas))]
+            test = self.datas[int(self.trainset * len(self.datas)):]
+            m = LinearModel(modelarray, train, floor=floor)
+            res = self.testmodel(m, test)
+            rsq.append(res[0])
+            rbh.append(res[1])
+        rsq, rbh = np.array(rsq), np.array(rbh)
+        self.modelstats[modelarray] = (rsq.mean(), rbh.mean())
+        return self.modelstats[modelarray]
 
-    def testmodel(self, model):
-        res = model.testfit(self.test)
+    def testmodel(self, model, test):
+        res = model.testfit(test)
         return res['_TOTAL']
 
 
