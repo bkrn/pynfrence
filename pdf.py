@@ -20,7 +20,7 @@ class PDF(object):
         NotImplemented
 
     def plot(self):
-        x = np.array(range(self.ends[0], self.ends[1] + 1))
+        x = np.linspace(self.ends[0], self.ends[1], len(self.pdf))
         y = list(self.pdf)
         plt.plot(x, y)
         plt.show()
