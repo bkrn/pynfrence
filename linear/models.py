@@ -23,7 +23,8 @@ class LinearModeler(object):
         return t
 
     def testmodel(self, model):
-        pass
+        res = model.testfit(self.test)
+        return res['_TOTAL']
 
 
 class LinearModel(object):
