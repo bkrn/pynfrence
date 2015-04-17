@@ -14,17 +14,18 @@ class LinearModeler(object):
         self.models = {}
         self.modelstats = {}
 
-    def addmodel(self, modelarray):
+    def addmodel(self, modelarray, plot=False):
         modelarray = tuple(modelarray)
         m = LinearModel(modelarray, self.train)
         self.models[modelarray] = m
         t = self.testmodel(m)
         self.modelstats[modelarray] = t
+        if plot:
+            m.testplot(self.test)
         return t
 
     def testmodel(self, model):
         res = model.testfit(self.test)
-        print res
         return res['_TOTAL']
 
 
