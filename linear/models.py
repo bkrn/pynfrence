@@ -98,36 +98,39 @@ class LinearModel(object):
 
     def runtest(self, testdatas):
         results = {}
+        act = []
+        pre = []
         for data in testdatas:
             predic = self.predict(data)
             actual = getattr(data, self.dvar)
             for key in predic:
                 if not key in results:
                     results[key] = []
+                act.append(actual[key])
+                pre.append(predic[key])
                 results[key].append((actual[key], predic[key]))
-        return results
+        return results, act, pre
 
     def testplot(self, testdatas):
-        results = self.runtest(testdatas)
-        x = []
-        y = []
-        for key in results:
-            ny, nx = zip(*results[key])
-            x.extend(nx)
-            y.extend(ny)
+        results, y, x = self.runtest(testdatas)
         plt.plot(x, y, 'o')
         plt.show()
 
+    def impearsonate(self, x, y):
+        x, y = np.array(x), np.array(y)
+        sstot = ((y - y.mean()) ** 2).sum()
+        ssres = ((y - x) ** 2).sum()
+        rsq = 1 - ssres / sstot
+        dfe = float(len(x) - len(self.xvars) - 1)
+        rbh = 1 - (ssres / dfe) / (sstot / float(len(x) - 1))
+        rbh = rbh if rbh <= rsq else np.nan
+        return rsq, rbh
+
     def testfit(self, testdatas):
-        results = self.runtest(testdatas)
+        results, act, pre = self.runtest(testdatas)
         for key in results:
             l = results[key]
-            act, pre = map(np.array, zip(*l))
-            sstot = ((act - act.mean()) ** 2).sum()
-            ssres = ((act - pre) ** 2).sum()
-            rsq = 1 - ssres / sstot
-            dfe = float(len(l) - len(self.xvars) - 1)
-            rbh = 1 - (ssres / dfe) / (sstot / float(len(l) - 1))
-            rbh = rbh if rbh <= rsq else np.nan
-            results[key] = (rsq, rbh)  # r^2 adjusted for number of xvars, r
+            y, x = zip(*l)
+            results[key] = self.impearsonate(x, y)
+        results['_TOTAL'] = self.impearsonate(pre, act)
         return results
