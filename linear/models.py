@@ -24,6 +24,7 @@ class LinearModeler(object):
 
     def testmodel(self, model):
         res = model.testfit(self.test)
+        print res
         return res['_TOTAL']
 
 
