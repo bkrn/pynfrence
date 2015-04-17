@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 class LinearModeler(object):
 
     def __init__(self, datas, trainset=.8):
-        shuffle = np.random.shuffle(datas)
-        self.train = shuffle[:int(trainset * len(shuffle))]
-        self.test = shuffle[int(trainset * len(shuffle)):]
+        np.random.shuffle(datas)
+        self.train = datas[:int(trainset * len(datas))]
+        self.test = datas[int(trainset * len(datas)):]
         self.models = {}
         self.modelstats = {}
 
