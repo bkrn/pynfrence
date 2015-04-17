@@ -22,8 +22,9 @@ class LinearModeler(object):
             test = self.datas[int(self.trainset * len(self.datas)):]
             m = LinearModel(modelarray, train, floor=floor)
             res = self.testmodel(m, test)
-            rsq.append(res[0])
-            rbh.append(res[1])
+            if not np.isnan(res[0]):
+                rsq.append(res[0])
+                rbh.append(res[1])
         rsq, rbh = np.array(rsq), np.array(rbh)
         self.modelstats[modelarray] = (rsq.mean(), rbh.mean())
         return self.modelstats[modelarray]
@@ -131,6 +132,8 @@ class LinearModel(object):
         sstot = ((y - y.mean()) ** 2).sum()
         ssres = ((y - x) ** 2).sum()
         rsq = 1 - ssres / sstot
+        if not -1 <= rsq <= 1:
+            return np.nan, np.nan
         dfe = float(len(x) - len(self.xvars) - 1)
         rbh = 1 - (ssres / dfe) / (sstot / float(len(x) - 1))
         rbh = rbh if rbh <= rsq else np.nan
