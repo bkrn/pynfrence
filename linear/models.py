@@ -16,7 +16,8 @@ class LinearModeler(object):
     def addmodel(self, modelarray, floor=None):
         modelarray = tuple(modelarray)
         rsq, rbh = [], []
-        for i in range(self.bootstraps):
+        i = 0
+        while not i == self.bootstraps:
             np.random.shuffle(self.datas)
             train = self.datas[:int(self.trainset * len(self.datas))]
             test = self.datas[int(self.trainset * len(self.datas)):]
@@ -25,8 +26,16 @@ class LinearModeler(object):
             if not np.isnan(res[0]):
                 rsq.append(res[0])
                 rbh.append(res[1])
+                i += 1
         rsq, rbh = np.array(rsq), np.array(rbh)
-        self.modelstats[modelarray] = (rsq.mean(), rbh.mean())
+        self.modelstats[modelarray] = (
+            (
+                rsq.mean() - 1.96 * rsq.std(),
+                rsq.mean(),
+                rsq.mean() + 1.96 * rsq.std(),
+            ),
+            rbh.mean(),
+        )
         return self.modelstats[modelarray]
 
     def testmodel(self, model, test):
