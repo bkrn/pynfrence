@@ -1,20 +1,17 @@
 
 
-import types
-
-
 class DataSet(object):
 	
-	def __init__(self, dataclass):
-		self.dataclass = dataclass
-	
-	def load_csv(self, file_path):
+	@classmethod
+	def load_csv(self, file_path, dataclass):
 		pass
 	
-	def load_pandas(self, dataframe):
+	@classmethod
+	def load_pandas(self, dataframe, dataclass):
 		pass
 	
-	def load_sql(self, CON, table):
+	@classmethod
+	def load_sql(self, CON, table, dataclass):
 		pass
 
 	
